@@ -1,0 +1,120 @@
+http://localhost:1026/v2/entities/urn:ngsi-ld:TemperatureSensor1/attrs
+'{"current_temp": {"value" : "{random_temp}"}'
+
+
+curl -iX POST \
+  'http://localhost:4041/iot/devices' \
+  -H 'Content-Type: application/json' \
+  -H 'fiware-service: openiot' \
+  -H 'fiware-servicepath: /' \
+  -d '{
+ "devices": [
+   {
+     "device_id":   "temp_sensor001",
+     "entity_name": "urn:ngsi-ld:TemperatureSensor1",
+     "entity_type": "temp_sensor",
+     "timezone":    "Europe/Berlin",
+     "attributes": [
+       { "object_id": "current_temp", "name": "current_temp", "type": "Double" }
+     ],
+     "static_attributes": [
+       { "name":"Vendor", "type": "String", "value": "Sapphire"}
+     ]
+   }
+ ]
+}
+'
+
+curl -iX POST \
+  --url 'http://localhost:1026/v2/subscriptions' \
+  --header 'content-type: application/json' \
+  --header 'fiware-service: openiot' \
+  --header 'fiware-servicepath: /' \
+  --data '{
+  "description": "Notify me when temperature changes",
+  "subject": {
+    "entities": [
+      {
+     "id" : "urn:ngsi-ld:TemperatureSensor1"
+      }
+    ],
+     "condition": {
+      "attrs": [ "current_temp" ]
+    }
+  },
+  "notification": {
+    "attrs": [ "current_temp" ],
+    "attrsFormat": "keyValues",
+    "http": {
+      "url": "http://host.docker.internal:8000/items"
+    }
+  }
+}'
+
+curl -iX POST \
+  'http://localhost:4041/iot/devices' \
+  -H 'Content-Type: application/json' \
+  -H 'fiware-service: openiot' \
+  -H 'fiware-servicepath: /' \
+  -d '{
+ "devices": [
+   {
+     "device_id":   "GPU4",
+     "entity_name": "urn:ngsi-ld:GPU4",
+     "entity_type": "GPU",
+     "timezone":    "Europe/Berlin",
+     "attributes": [
+       { "object_id": "cooler_speed", "name": "cooler_speed", "type": "Double" },
+       { "object_id": "hashrate", "name": "hashrate", "type": "Double"}
+     ],
+     "static_attributes": [
+       { "name": "vendor", "type": "String", "value": "AMD Radeon" },
+       { "name": "model_name", "type": "String", "value": "RX 480" }
+     ]
+   }
+ ]
+}
+'
+
+curl -G -X GET \
+  'http://localhost:1026/v2/entities' \
+  -H 'fiware-service: openiot' \
+  -H 'fiware-servicepath: /'
+
+curl -iX POST \
+  --url 'http://localhost:1026/v2/op/update' \
+  --header 'Content-Type: application/json' \
+  --header 'fiware-service: openiot' \
+  --header 'fiware-servicepath: /' \
+  --data '{
+  "actionType":"append",
+  "entities":[
+    {
+      "id":"urn:ngsi-ld:GPU1", "type":"GPU",
+      "cooler_ratio":{"type":"Double", "value": 1}
+    }
+  ]
+}'
+
+
+
+
+curl -iX POST \
+  --url 'http://localhost:1026/v2/op/update' \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "actionType":"update",
+  "entities":[
+    {
+      "id":"urn:ngsi-ld:GPU4", "type":"GPU",
+      "cooler_speed":{"type":"Integer", "value": 1199}
+    },
+    {
+      "id":"urn:ngsi-ld:GPU3", "type":"GPU",
+      "cooler_speed":{"type":"Integer", "value": 1199}
+    }
+  ]
+}'
+
+http://localhost:1026/v2/entities?type=GPU&options=keyValues&attrs=model_name,vendor,cooler_speed,cooler_ratio
+http://localhost:1026/v2/entities?type=GPU
