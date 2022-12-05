@@ -4,6 +4,7 @@ from fastapi import FastAPI, Request, Body
 import uvicorn
 import requests
 import json
+from random import uniform
 
 app = FastAPI()
 
@@ -41,7 +42,9 @@ def adjustFans(temp: int):
     array_items_reqs = []
     for item in data:
         id = item['id']
-        speed_scale = item['cooler_ratio']['value']
+        speed_scale = item['cooler_speed']['value']
+        if speed_scale is None:
+            speed_scale = uniform(1.5, 3.0)
         cooler_speed = formulaCoolerSpeed(temp) * speed_scale
         req_item = f'''{{
           "id":"{id}", "type":"GPU",
