@@ -1,3 +1,4 @@
+import re
 from typing import Union
 
 from fastapi import FastAPI, Request, Body
@@ -6,12 +7,31 @@ import requests
 import json
 from random import uniform
 
+from starlette.staticfiles import StaticFiles
+from starlette.templating import Jinja2Templates
+
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
 
 @app.get("/")
-def read_root():
-    return {"Hello": "World"}
+async def read_root(request: Request,
+                    ):
+    return templates.TemplateResponse("index.html", {"request": request})
+
+
+@app.get("/xxx")
+async def read_root(request: Request,
+                    ):
+    data = requests.get('http://localhost:8666/STH/v2/entities/urn:ngsi-ld:TemperatureSensor1/attrs/current_temp?type=temp_sensor&lastN=1',
+                                headers={'fiware-service': 'openiot',
+                                         'fiware-servicepath': '/'})
+    data2 = data.json()
+    lst = []
+    # for a in data2['value'][-1]['attrValue']:
+    #     lst.append(int(a['attrValue']))
+    return int(data2['value'][-1]['attrValue'])
 
 
 @app.get("/items/{item_id}")

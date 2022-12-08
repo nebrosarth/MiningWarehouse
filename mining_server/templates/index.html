@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Загрузка</title>
+    <link rel="stylesheet" href="./static/style.css">
+    <script src="https://cdn.plot.ly/plotly-2.16.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"
+            integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="middle">
+    <div class="wrapper">
+
+        <div id="chart"></div>
+        <script>
+            var return_last;
+            function callback(response) {
+                return_last = response;
+                console.log(response)
+                console.log(return_last)
+            }
+            function ajax() {
+                $.ajax({
+                    url: "/xxx/",
+                    type: "get", //Change this to post or put
+                    dataType: "json",
+                    contentType: "application/json",
+                    success: function (data) {
+                        callback(data)
+                    },
+                    error: function (data) {
+                        return []
+                    },
+                });
+            }
+
+
+
+            function getData() {
+                ajax()
+                x = return_last
+
+                a = Math.random()
+                console.log(a)
+                console.log(x)
+                return x;
+            }
+
+            Plotly.newPlot('chart', [{
+                y: [getData()],
+                type: 'line'
+            }]);
+
+            var cnt = 0;
+
+            setInterval(function () {
+
+                Plotly.extendTraces('chart', {y: [[getData()]]}, [0]);
+                cnt++;
+                if (cnt > 500) {
+                    Plotly.relayout('chart', {
+                        xaxis: {
+                            range: [cnt - 500, cnt]
+                        }
+                    });
+                }
+            }, 500);
+        </script>
+    </div>
+</div>
+</body>
+
+</html>

@@ -15,7 +15,7 @@ while True:
     req2 = requests.post('http://localhost:8000/items',
                           json=data)
     print(request_temp.text)
-    time.sleep(randrange(10))
+    time.sleep(randrange(2))
     req = requests.post('http://localhost:7896/iot/d?k=4jggokgpepnvsb2uv4s40d59ov&i=temp_sensor001',
                    f'current_temp|{random_temp}', headers={'Content-Type': 'text/plain'})
 
